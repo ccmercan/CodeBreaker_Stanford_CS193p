@@ -5,28 +5,60 @@
 //  Created by cag on 9/24/26.
 //
 
-import SwiftUI
+import Foundation
 
-typealias Peg = Color
+typealias Peg = String
 
 struct CodeBreaker { 
     
-    var masterCode: Code = Code(kind:.master)
-    var guess: Code = Code(kind: .guess)
+    var masterCode: Code
+    var guess: Code 
     var attempts: [Code] = []
     let pegChoices:[Peg]
     
-    init(pegChoices: [Peg] = [.red, .green,.blue, .yellow]){
+    init(numberOfPegs: Int, pegChoices: [Peg] = ["brown","yellow","orange","black", "pink", "purple"]){
+        
         self.pegChoices = pegChoices
+        self.masterCode  = Code(kind: .master, numberOfPegs:numberOfPegs)
+        self.guess = Code(kind:.guess, numberOfPegs:numberOfPegs)
         masterCode.randomize(from: pegChoices)
         print(masterCode)
     }
     
-    mutating func attemptGuess(){
+    static func randomGame() -> CodeBreaker {
+        let useEmojis = Bool.random()
+
+        let choices: [Peg]
+        if useEmojis {
+            choices = ["⚽️", "🏀", "🏈", "⚾️", "🎾", "🏐"]
+        } else {
+            choices = ["brown", "yellow", "orange", "black", "pink", "purple"]
+        }
+
+        return CodeBreaker(
+            numberOfPegs: Int.random(in: 3...6),
+            pegChoices: choices
+        )
+    }
+    
+    mutating func attemptGuess() {
         var attempt = guess
+
+        let alreadyTried = attempts.contains { savedAttempt in
+            savedAttempt.pegs == attempt.pegs
+        }
+        let hasNoPegsChosen = attempt.pegs.allSatisfy { peg in
+            peg == Code.missing
+        }
+
+        if alreadyTried || hasNoPegsChosen {
+            return
+        }
+
         attempt.kind = .attempt(guess.match(against: masterCode))
         attempts.append(attempt)
     }
+    
     
     
     mutating func changeGuessPeg(at index:Int){
@@ -43,9 +75,13 @@ struct CodeBreaker {
 
 struct Code {
     var kind: Kind
-    var pegs : [Peg] = Array(repeating: Code.missing, count: 4)
+    var pegs : [Peg] //=
     
-    static let missing: Peg = .clear
+    init(kind:Kind,numberOfPegs:Int){
+        self.kind = kind
+        self.pegs = Array(repeating: Code.missing, count: numberOfPegs)
+    }
+    static let missing: Peg = "clear"
     
     enum Kind:Equatable {
         case master
@@ -62,7 +98,7 @@ struct Code {
     }
     
     mutating func randomize(from pegChoices:[Peg]) {
-        for index in pegChoices.indices{
+        for index in pegs.indices{
             pegs[index] = pegChoices.randomElement() ?? Code.missing
         }
     }
