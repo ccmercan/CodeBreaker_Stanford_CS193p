@@ -1,3 +1,4 @@
+
 //
 //  MatchMarkers.swift
 //  CodeBreaker
@@ -12,12 +13,13 @@ enum Match {
 }
 
 struct MatchMarkers: View {
+    // MARK: Data In
+    let matches: [Match]
 
-    var matches: [Match]
-
+    // MARK: - Body
     var body: some View {
 
-        HStack(alignment: .top, spacing: 10) {
+        HStack(alignment: .top, spacing: 7) {
 
             VStack(spacing:4) {
                 matchMarker(peg: 0)
@@ -43,7 +45,7 @@ struct MatchMarkers: View {
                 }
             }
         }
-        .fixedSize()
+        //.fixedSize()
     }
 
     func matchMarker(peg: Int) -> some View {
@@ -64,9 +66,10 @@ struct MatchMarkers: View {
                 foundCount > peg
                     ? Color.primary
                     : Color.clear,
-                lineWidth: 1.5
+                lineWidth: 2
             )
             .aspectRatio(1, contentMode: .fit)
+            
             .frame(height: 15)
             
     }

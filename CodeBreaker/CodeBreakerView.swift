@@ -10,14 +10,7 @@ import SwiftUI
 struct CodeBreakerView: View {
     @State var game = CodeBreaker(numberOfPegs: 6,pegChoices: ["⚽️", "🏀", "🏈", "⚾️", "🎾", "🏐"])
     
-    private let supportedColors: [String: Color] = [
-        "brown": .brown,
-        "yellow": .yellow,
-        "orange": .orange,
-        "black": .black,
-        "pink": .pink,
-        "purple": .purple
-    ]
+    
     
     var body: some View {
         VStack {
@@ -53,31 +46,14 @@ struct CodeBreakerView: View {
                     game = CodeBreaker.randomGame()
                 }
             }
-            .font(.system(size: 148))
+            .font(.system(size: 80))
             .minimumScaleFactor(0.1)
         
     }
     func view(for code:Code) -> some View {
-        HStack(){
+        HStack{
             ForEach(code.pegs.indices, id: \.self) { index in
-                ZStack {
-                    if code.pegs[index] == Code.missing {
-                        RoundedRectangle(cornerRadius: 10)
-                            .strokeBorder(Color.gray)
-                    } else if let color = supportedColors[code.pegs[index]] {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(color)
-                    } else {
-                        RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.clear)
-                                .overlay {
-                                    Text(code.pegs[index])
-                                        .font(.system(size: 120))
-                                        .minimumScaleFactor(9.0 / 120.0)
-                                        .lineLimit(1)
-                                }
-                        }
-                }
+                PegView(peg: code.pegs[index])
                 .contentShape(Rectangle())
                 .aspectRatio(1, contentMode: .fit)
                 .padding(3)
@@ -87,37 +63,22 @@ struct CodeBreakerView: View {
                     }
                 }
             }
-            /*"ForEach(code.pegs.indices, id: \.self){index in
-                RoundedRectangle(cornerRadius: 10)
-                    .overlay{
-                        if code.pegs[index] == Code.missing{
-                            RoundedRectangle(cornerRadius: 10)
-                                .strokeBorder(Color.gray)
+            
+            RoundedRectangle(cornerRadius: 10).foregroundStyle(Color.clear).aspectRatio(1,contentMode: .fit).overlay{
+            if let matches = code.matches{
+                MatchMarkers(matches: matches)
+                }
+            else {
+                
+                if code.kind == .guess{
+                    guessButton
+                }
+                if code.kind == .master{
+                    restartButton
                         }
-                    }
-                    .contentShape(Rectangle())
-                    .aspectRatio(1,contentMode: .fit)
-                    //.foregroundStyle(code.pegs[index])
-                    .padding(3)
-                    .onTapGesture{
-                        if code.kind == .guess {
-                            game.changeGuessPeg(at: index)
-                        }
-                    }
-            }*/
-            
-            
-            
-            MatchMarkers(matches: code.matches)
-                .overlay{
-                    if code.kind == .master{
-                        restartButton
-                    }
-                    if code.kind == .guess{
-                        guessButton
-                    }
                     
                 }
+            }
             
     
             
