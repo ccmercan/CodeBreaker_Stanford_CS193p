@@ -19,11 +19,19 @@ struct Code {
     static let missing: Peg = "clear"
     
     enum Kind:Equatable {
-        case master
+        case master(isHidden: Bool)
         case guess
         case attempt([Match])
         case unknown
     }
+    
+    var isHidden: Bool {
+        switch kind {
+        case .master(let isHidden): return isHidden
+        default: return false
+        }
+    }
+
     
     var matches: [Match]?{
         switch kind {
@@ -32,6 +40,7 @@ struct Code {
         }
     }
     
+        
     mutating func reset(){
         pegs = Array(repeating: Code.missing, count: pegs.count)
     }

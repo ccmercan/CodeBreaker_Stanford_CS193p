@@ -28,7 +28,9 @@ struct PegView: View {
                     .strokeBorder(Color.gray)
             } else if let color = supportedColors[peg] {
                 pegShape
+                    
                     .fill(color)
+                    .aspectRatio(1,contentMode: .fit)
             } else {
                 pegShape
                         .fill(Color.clear)
@@ -38,6 +40,7 @@ struct PegView: View {
                                 .minimumScaleFactor(9.0 / 120.0)
                                 .lineLimit(1)
                         }
+                        .aspectRatio(1,contentMode: .fit)
                 }
         }
     }

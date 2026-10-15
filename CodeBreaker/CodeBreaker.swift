@@ -19,7 +19,7 @@ struct CodeBreaker {
     init(numberOfPegs: Int, pegChoices: [Peg] = ["brown","yellow","orange","black", "pink", "purple"]){
         
         self.pegChoices = pegChoices
-        self.masterCode  = Code(kind: .master, numberOfPegs:numberOfPegs)
+        self.masterCode  = Code(kind: .master(isHidden: true), numberOfPegs:numberOfPegs)
         self.guess = Code(kind:.guess, numberOfPegs:numberOfPegs)
         masterCode.randomize(from: pegChoices)
         print(masterCode)
@@ -41,6 +41,10 @@ struct CodeBreaker {
         )
     }
     
+    var isOver: Bool{
+        attempts.last?.pegs == masterCode.pegs
+    }
+    
     mutating func attemptGuess() {
         var attempt = guess
 
@@ -58,9 +62,15 @@ struct CodeBreaker {
         attempt.kind = .attempt(guess.match(against: masterCode))
         attempts.append(attempt)
         guess.reset()
+        if isOver{
+            masterCode.kind = .master(isHidden: false)
+        }
     }
     
-    
+    mutating func setGuessPeg(_ peg: Peg, at index: Int){
+        guard guess.pegs.indices.contains(index) else { return }
+        guess.pegs[index] = peg
+    }
     
     mutating func changeGuessPeg(at index:Int){
         let existingPeg = guess.pegs[index]
