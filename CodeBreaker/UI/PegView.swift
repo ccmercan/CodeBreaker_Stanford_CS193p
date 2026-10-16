@@ -25,7 +25,7 @@ struct PegView: View {
         HStack {
             if peg == Code.missing {
                 pegShape
-                    .strokeBorder(Color.gray)
+                    .strokeBorder(Color.clear)
             } else if let color = supportedColors[peg] {
                 pegShape
                     

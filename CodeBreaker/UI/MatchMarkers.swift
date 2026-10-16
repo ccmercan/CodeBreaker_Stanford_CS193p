@@ -55,7 +55,9 @@ struct MatchMarkers: View {
         let foundCount = matches.count {
             $0 != .nomatch
         }
-
+            
+        
+        
         return Circle()
             .fill(
                 exactCount > peg

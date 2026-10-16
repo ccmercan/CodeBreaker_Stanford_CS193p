@@ -18,20 +18,34 @@ struct CodeBreakerView: View {
     var body: some View {
         VStack {
             
-            view(for: game.masterCode)
+            CodeView(code: game.masterCode){
+                Text("0:03")
+                    .font(.title)
+            }
             ScrollView{
                 if !game.isOver{
-                    view(for: game.guess)
+                    CodeView(code: game.guess,selection: $selection){
+                        guessButton
+                    }
+                             
                 }
                    
                 ForEach(game.attempts.indices.reversed(), id: \.self){index in
-                    view(for:game.attempts[index])
+                    CodeView(
+                        code:game.attempts[index])
+                        {
+                            if let matches = game.attempts[index].matches{
+                                MatchMarkers(matches: matches)
+                            }
+                            }
                 }
             }
             PegChooser(choices: game.pegChoices) { peg in
                 game.setGuessPeg(peg, at: selection)
                 selection = (selection + 1) % game.masterCode.pegs.count
             }
+            restartButton
+                .aspectRatio(0.3,contentMode: .fit)
            
         }
         .padding()
@@ -61,30 +75,7 @@ struct CodeBreakerView: View {
             .minimumScaleFactor(0.1)
         
     }
-    func view(for code:Code) -> some View {
-        HStack{
-            CodeView(code: code, selection: $selection)
-            
-            CodeView.Selection.shape
-                .foregroundStyle(Color.clear).aspectRatio(1,contentMode: .fit)
-                .overlay{
-                    if let matches = code.matches{
-                        MatchMarkers(matches: matches)
-                        }
-                    else {
-                        
-                        if code.kind == .guess{
-                            guessButton
-                        }
-                        if case .master = code.kind{
-                            restartButton
-                        }
-                            
-                        }
-            }
-            
-        }
-    }
+    
     struct GuessButton{
         static let minimumFontSize: CGFloat = 8
         static let maximumFontSize: CGFloat = 80
