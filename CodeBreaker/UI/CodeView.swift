@@ -14,7 +14,11 @@ struct CodeView<AncillaryView>: View where AncillaryView: View{
     // MARK: Data Shared With Me
     @Binding var selection: Int
     
+    
     let ancillaryView: () -> AncillaryView
+    
+    // MARK: Data Owned by Me
+    @Namespace private var selectionNamespace
     
     init(
         code: Code,
@@ -31,18 +35,27 @@ struct CodeView<AncillaryView>: View where AncillaryView: View{
         HStack{
             ForEach(code.pegs.indices, id: \.self) { index in
                 PegView(peg: code.pegs[index])
-                    //.contentShape(Rectangle())
-                    //.aspectRatio(1, contentMode: .fit)
                     .padding(Selection.border)
-                    .background{
-                        if selection == index, code.kind == .guess{
-                            RoundedRectangle(cornerRadius: Selection.cornerRadius)
-                                .foregroundStyle(Selection.color)
+                    .background{ // selection background
+                        Group {
+                            if selection == index, code.kind == .guess{
+                                Selection.shape
+                                    .foregroundStyle(Selection.color)
+                                    .matchedGeometryEffect(id: "selection", in: selectionNamespace)
+                                
+                            }
                         }
+                        .animation(.guess, value: selection)
                     }
-                    .overlay{
-                        Selection.shape.foregroundStyle(code.isHidden ? Color.gray : .clear)
-                    }
+                    .overlay{ // hidden code obscuring
+                        Selection.shape
+                            .foregroundStyle(code.isHidden ? Color.gray : .clear)
+                            .transaction{transaction in
+                                if code.isHidden{
+                                    transaction.animation = nil
+                                    }
+                                }
+                            }
                     .onTapGesture {
                         if code.kind == .guess{
                             selection = index

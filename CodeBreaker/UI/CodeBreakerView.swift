@@ -9,43 +9,54 @@ import SwiftUI
 
 struct CodeBreakerView: View {
     // MARK: Data Owned by Me
-    @State private var game = CodeBreaker(numberOfPegs: 6,pegChoices: ["⚽️", "🏀", "🏈", "⚾️", "🎾", "🏐"])
+    @State private var game = CodeBreaker(numberOfPegs: 4,pegChoices: ["⚽️", "🏀", "🏈", "⚾️", "🎾", "🏐"])
     
     @State private var selection: Int = 0
+    @State private var restarting = false
+    @State private var hideRecentMarkers = false
     // MARK: - Body
     
     
     var body: some View {
         VStack {
             
+            restartButton
+                //.aspectRatio(0.25,contentMode: .fit)
+            
             CodeView(code: game.masterCode){
                 Text("0:03")
                     .font(.title)
             }
             ScrollView{
-                if !game.isOver{
+                if !game.isOver || restarting{
                     CodeView(code: game.guess,selection: $selection){
                         guessButton
                     }
-                             
+                    
+                    .animation(nil, value:game.attempts.count)
+                    .opacity(restarting ? 0 : 1)
                 }
                    
                 ForEach(game.attempts.indices.reversed(), id: \.self){index in
                     CodeView(
-                        code:game.attempts[index])
-                        {
-                            if let matches = game.attempts[index].matches{
+                        code:game.attempts[index]){
+                            let showMarkers = !hideRecentMarkers || index != game.attempts.count - 1
+                            if showMarkers, let matches = game.attempts[index].matches{
                                 MatchMarkers(matches: matches)
                             }
-                            }
+                        }
+                        .transition(.attempt(game.isOver))
                 }
             }
-            PegChooser(choices: game.pegChoices) { peg in
-                game.setGuessPeg(peg, at: selection)
-                selection = (selection + 1) % game.masterCode.pegs.count
+            if !game.isOver{
+                PegChooser(choices: game.pegChoices) { peg in
+                    game.setGuessPeg(peg, at: selection)
+                    selection = (selection + 1) % game.masterCode.pegs.count
+                        
+                }
+                .transition(.pegChooser)
             }
-            restartButton
-                .aspectRatio(0.3,contentMode: .fit)
+            
            
         }
         .padding()
@@ -54,25 +65,40 @@ struct CodeBreakerView: View {
     
     
     var guessButton: some View{
-        return Button("Guess"){
-            withAnimation{
-                game.attemptGuess()
-            }
-        }
+        Button("Guess", action: guess)
         .font(.system(size: GuessButton.maximumFontSize))
         .minimumScaleFactor(GuessButton.scaleFactor)
     }
+    
+    func guess() {
+        withAnimation(.guess){
+            game.attemptGuess()
+            selection = 0
+            hideRecentMarkers = true
+        }
+    completion : {
+        withAnimation(.guess) {
+            hideRecentMarkers = false
+            }
+        }
+    }
         
-        var restartButton: some View{
-            return Button("Restart"){
-                withAnimation{
-                    selection = 0
-                    game = CodeBreaker.randomGame()
-                    
+    var restartButton: some View{
+            Button("Restart"){
+                withAnimation(.guess) {
+                    restarting = true
+                }
+                completion : {
+                    withAnimation(.guess){
+                        selection = 0
+                        game = CodeBreaker.randomGame()
+                        restarting = false
+                        
+                    }
                 }
             }
-            .font(.system(size: 80))
-            .minimumScaleFactor(0.1)
+            .font(.system(size: 30))
+            //.minimumScaleFactor(0.1)
         
     }
     
@@ -82,6 +108,19 @@ struct CodeBreakerView: View {
         static let scaleFactor = minimumFontSize / maximumFontSize
     }
     
+}
+
+extension Animation {
+    static let guess = Animation.bouncy
+}
+
+extension AnyTransition{
+    static let pegChooser = AnyTransition.offset(x:0, y:200)
+    static func attempt(_ isOver:Bool) -> AnyTransition {
+        AnyTransition.asymmetric(
+            insertion: isOver ? .opacity : .move(edge: .top),
+            removal: .move(edge: .trailing))
+    }
 }
 
 extension Color {
