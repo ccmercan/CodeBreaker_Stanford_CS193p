@@ -24,8 +24,11 @@ struct CodeBreakerView: View {
                 //.aspectRatio(0.25,contentMode: .fit)
             
             CodeView(code: game.masterCode){
-                Text("0:03")
-                    .font(.title)
+                ElapsedTime(startTime: game.startTime, endTime: game.endTime)
+                    .font(.system(size: GuessButton.maximumFontSize))
+                    .minimumScaleFactor(GuessButton.scaleFactor)
+                    .monospaced()
+                    .lineLimit(1)
             }
             ScrollView{
                 if !game.isOver || restarting{
@@ -34,7 +37,7 @@ struct CodeBreakerView: View {
                     }
                     
                     .animation(nil, value:game.attempts.count)
-                    .opacity(restarting ? 0 : 1)
+                    .opacity(restarting && game.isOver ? 0 : 1)
                 }
                    
                 ForEach(game.attempts.indices.reversed(), id: \.self){index in
