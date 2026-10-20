@@ -23,13 +23,14 @@ struct CodeBreakerView: View {
             restartButton
                 //.aspectRatio(0.25,contentMode: .fit)
             
-            CodeView(code: game.masterCode){
-                ElapsedTime(startTime: game.startTime, endTime: game.endTime)
-                    .font(.system(size: GuessButton.maximumFontSize))
-                    .minimumScaleFactor(GuessButton.scaleFactor)
-                    .monospaced()
-                    .lineLimit(1)
-            }
+            CodeView(code: game.masterCode)
+//            {
+//                ElapsedTime(startTime: game.startTime, endTime: game.endTime)
+//                    .font(.system(size: GuessButton.maximumFontSize))
+//                    .minimumScaleFactor(GuessButton.scaleFactor)
+//                    .monospaced()
+//                    .lineLimit(1)
+//            }
             ScrollView{
                 if !game.isOver || restarting{
                     CodeView(code: game.guess,selection: $selection){
@@ -40,11 +41,11 @@ struct CodeBreakerView: View {
                     .opacity(restarting && game.isOver ? 0 : 1)
                 }
                    
-                ForEach(game.attempts.indices.reversed(), id: \.self){index in
+                ForEach(game.attempts, id: \.pegs){attempt in
                     CodeView(
-                        code:game.attempts[index]){
-                            let showMarkers = !hideRecentMarkers || index != game.attempts.count - 1
-                            if showMarkers, let matches = game.attempts[index].matches{
+                        code:attempt){
+                            let showMarkers = !hideRecentMarkers || attempt.pegs != game.attempts.first?.pegs
+                            if showMarkers, let matches = attempt.matches{
                                 MatchMarkers(matches: matches)
                             }
                         }
