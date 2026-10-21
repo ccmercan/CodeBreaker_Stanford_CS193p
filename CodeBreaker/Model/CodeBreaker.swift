@@ -11,6 +11,7 @@ typealias Peg = String
 
 struct CodeBreaker { 
     
+    var name: String
     var masterCode: Code
     var guess: Code 
     var attempts: [Code] = []
@@ -18,8 +19,8 @@ struct CodeBreaker {
     var startTime: Date = Date.now
     var endTime: Date?
     
-    init(numberOfPegs: Int, pegChoices: [Peg] = ["brown","yellow","orange","black", "pink", "purple"]){
-        
+    init(name:String = "Code Breaker",numberOfPegs: Int, pegChoices: [Peg] = ["brown","yellow","orange","black", "pink", "purple"]){
+        self.name = name
         self.pegChoices = pegChoices
         self.masterCode  = Code(kind: .master(isHidden: true), numberOfPegs:numberOfPegs)
         self.guess = Code(kind:.guess, numberOfPegs:numberOfPegs)

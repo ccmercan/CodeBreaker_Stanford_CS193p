@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct CodeBreakerView: View {
+    
+    //MARK : Data Shared with Me
+    @Binding var game: CodeBreaker
+
+    
     // MARK: Data Owned by Me
-    @State private var game = CodeBreaker(numberOfPegs: 4,pegChoices: ["⚽️", "🏀", "🏈", "⚾️", "🎾", "🏐"])
     
     @State private var selection: Int = 0
     @State private var restarting = false
@@ -20,16 +24,12 @@ struct CodeBreakerView: View {
     var body: some View {
         VStack {
             
-            restartButton
+            
                 //.aspectRatio(0.25,contentMode: .fit)
             
             CodeView(code: game.masterCode)
 //            {
-//                ElapsedTime(startTime: game.startTime, endTime: game.endTime)
-//                    .font(.system(size: GuessButton.maximumFontSize))
-//                    .minimumScaleFactor(GuessButton.scaleFactor)
-//                    .monospaced()
-//                    .lineLimit(1)
+//
 //            }
             ScrollView{
                 if !game.isOver || restarting{
@@ -63,6 +63,18 @@ struct CodeBreakerView: View {
             
            
         }
+        .toolbar{
+            ToolbarItem(placement: .primaryAction){
+                restartButton
+            }
+            
+                        ToolbarItem{
+                ElapsedTime(startTime: game.startTime, endTime: game.endTime)
+                //.font(.system(size: GuessButton.maximumFontSize))
+                //.minimumScaleFactor(GuessButton.scaleFactor)
+                    .monospaced()
+                .lineLimit(1)}
+        }
         .padding()
     }
     
@@ -88,7 +100,7 @@ struct CodeBreakerView: View {
     }
         
     var restartButton: some View{
-            Button("Restart"){
+            Button("Restart",systemImage: "arrow.circlepath"){
                 withAnimation(.guess) {
                     restarting = true
                 }
@@ -134,5 +146,9 @@ extension Color {
 }
 
 #Preview {
-    CodeBreakerView()
+    @Previewable @State var game = CodeBreaker(name:"Preview", numberOfPegs: 3, pegChoices: ["red","blue","green"])
+    NavigationStack{
+        CodeBreakerView(game: $game)
+
+    }
 }

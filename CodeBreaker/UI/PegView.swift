@@ -16,7 +16,13 @@ struct PegView: View {
         "orange": .orange,
         "black": .black,
         "pink": .pink,
-        "purple": .purple
+        "purple": .purple,
+        "red": .red,
+        "blue": .blue,
+        "green": .green,
+        "indigo": .indigo,
+        "cyan": .cyan
+        
     ]
     
     let pegShape = RoundedRectangle(cornerRadius: 10)
