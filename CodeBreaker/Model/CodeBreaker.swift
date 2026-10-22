@@ -9,8 +9,9 @@ import Foundation
 
 typealias Peg = String
 
-struct CodeBreaker { 
+@Observable class CodeBreaker {
     
+        
     var name: String
     var masterCode: Code
     var guess: Code 
@@ -30,7 +31,7 @@ struct CodeBreaker {
         print(masterCode)
     }
     
-    static func randomGame() -> CodeBreaker {
+     func randomGame(){
         let useEmojis = Bool.random()
 
         let choices: [Peg]
@@ -40,18 +41,23 @@ struct CodeBreaker {
             choices = ["brown", "yellow", "orange", "black", "pink", "purple"]
         }
         
-        
-        return CodeBreaker(
-            numberOfPegs: Int.random(in: 3...6),
-            pegChoices: choices
-        )
+        masterCode.kind = .master(isHidden: true)
+        masterCode.randomize(from: choices)
+        guess.reset()
+        attempts.removeAll()
+        startTime = .now
+        endTime = nil
+//        return CodeBreaker(
+//            numberOfPegs: Int.random(in: 3...6),
+//            pegChoices: choices
+//        )
     }
     
     var isOver: Bool{
         attempts.first?.pegs == masterCode.pegs
     }
     
-    mutating func attemptGuess() {
+     func attemptGuess() {
         var attempt = guess
 
         let alreadyTried = attempts.contains { savedAttempt in
@@ -74,12 +80,12 @@ struct CodeBreaker {
         }
     }
     
-    mutating func setGuessPeg(_ peg: Peg, at index: Int){
+     func setGuessPeg(_ peg: Peg, at index: Int){
         guard guess.pegs.indices.contains(index) else { return }
         guess.pegs[index] = peg
     }
     
-    mutating func changeGuessPeg(at index:Int){
+     func changeGuessPeg(at index:Int){
         let existingPeg = guess.pegs[index]
         if let indexOfExistingInPegChoices = pegChoices.firstIndex(of: existingPeg){
             let newPeg = pegChoices[(indexOfExistingInPegChoices + 1) % pegChoices.count]
@@ -92,3 +98,12 @@ struct CodeBreaker {
 }
 
 
+extension CodeBreaker: Identifiable, Hashable, Equatable {
+    static func == (lhs: CodeBreaker, rhs: CodeBreaker) -> Bool {
+        return lhs.id == rhs.id
+    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+}

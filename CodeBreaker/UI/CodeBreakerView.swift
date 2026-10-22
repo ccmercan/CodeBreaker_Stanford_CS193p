@@ -10,7 +10,7 @@ import SwiftUI
 struct CodeBreakerView: View {
     
     //MARK : Data Shared with Me
-    @Binding var game: CodeBreaker
+    let game: CodeBreaker
 
     
     // MARK: Data Owned by Me
@@ -107,7 +107,7 @@ struct CodeBreakerView: View {
                 completion : {
                     withAnimation(.guess){
                         selection = 0
-                        game = CodeBreaker.randomGame()
+                        game.randomGame()
                         restarting = false
                         
                     }
@@ -148,7 +148,7 @@ extension Color {
 #Preview {
     @Previewable @State var game = CodeBreaker(name:"Preview", numberOfPegs: 3, pegChoices: ["red","blue","green"])
     NavigationStack{
-        CodeBreakerView(game: $game)
+        CodeBreakerView(game: game)
 
     }
 }
