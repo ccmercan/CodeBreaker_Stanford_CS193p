@@ -23,14 +23,7 @@ struct CodeBreakerView: View {
     
     var body: some View {
         VStack {
-            
-            
-                //.aspectRatio(0.25,contentMode: .fit)
-            
             CodeView(code: game.masterCode)
-//            {
-//
-//            }
             ScrollView{
                 if !game.isOver || restarting{
                     CodeView(code: game.guess,selection: $selection){
@@ -59,6 +52,7 @@ struct CodeBreakerView: View {
                         
                 }
                 .transition(.pegChooser)
+                .frame(maxHeight: 120)
             }
             
            

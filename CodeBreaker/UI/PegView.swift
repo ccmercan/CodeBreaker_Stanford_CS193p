@@ -32,6 +32,7 @@ struct PegView: View {
             if peg == Code.missing {
                 pegShape
                     .strokeBorder(Color.clear)
+                    .contentShape(pegShape)
             } else if let color = supportedColors[peg] {
                 pegShape
                     

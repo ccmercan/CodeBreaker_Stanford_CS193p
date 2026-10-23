@@ -32,25 +32,23 @@ typealias Peg = String
     }
     
      func randomGame(){
-        let useEmojis = Bool.random()
-
-        let choices: [Peg]
-        if useEmojis {
-            choices = ["⚽️", "🏀", "🏈", "⚾️", "🎾", "🏐"]
-        } else {
-            choices = ["brown", "yellow", "orange", "black", "pink", "purple"]
-        }
+//        let useEmojis = Bool.random()
+//
+//        let choices: [Peg]
+//        if useEmojis {
+//            choices = ["⚽️", "🏀", "🏈", "⚾️", "🎾", "🏐"]
+//        } else {
+//            choices = ["brown", "yellow", "orange", "black", "pink", "purple"]
+//        }
         
         masterCode.kind = .master(isHidden: true)
-        masterCode.randomize(from: choices)
+        masterCode.randomize(from: masterCode.pegs)
         guess.reset()
+
         attempts.removeAll()
         startTime = .now
         endTime = nil
-//        return CodeBreaker(
-//            numberOfPegs: Int.random(in: 3...6),
-//            pegChoices: choices
-//        )
+
     }
     
     var isOver: Bool{

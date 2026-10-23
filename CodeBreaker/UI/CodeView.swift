@@ -56,13 +56,13 @@ struct CodeView<AncillaryView>: View where AncillaryView: View{
                                     }
                                 }
                             }
+                    
                     .onTapGesture {
                         if code.kind == .guess{
                             selection = index
                         }
                             }
                     }
-            
             Selection.shape
                 .foregroundStyle(Color.clear).aspectRatio(1,contentMode: .fit)
                 .overlay{
@@ -72,6 +72,7 @@ struct CodeView<AncillaryView>: View where AncillaryView: View{
         }
         
     }
+        
     
 }
 fileprivate struct Selection {
