@@ -17,8 +17,10 @@ typealias Peg = String
     var guess: Code 
     var attempts: [Code] = []
     var pegChoices:[Peg]
-    var startTime: Date = Date.now
+    var startTime: Date?
     var endTime: Date?
+    var elapsedTime: TimeInterval = 0
+    
     
     init(name:String = "Code Breaker",numberOfPegs: Int, pegChoices: [Peg] = ["brown","yellow","orange","black", "pink", "purple"]){
         self.name = name
@@ -26,8 +28,7 @@ typealias Peg = String
         self.masterCode  = Code(kind: .master(isHidden: true), numberOfPegs:numberOfPegs)
         self.guess = Code(kind:.guess, numberOfPegs:numberOfPegs)
         masterCode.randomize(from: pegChoices)
-        startTime = .now
-        endTime = nil
+        
         print(masterCode)
     }
     
@@ -48,8 +49,24 @@ typealias Peg = String
         attempts.removeAll()
         startTime = .now
         endTime = nil
+        elapsedTime = 0
 
     }
+    
+    func startTimer() {
+        if startTime == nil, !isOver {
+            startTime = .now
+        }
+    }
+    
+    func pauseTimer(){
+        if let startTime{
+            elapsedTime += Date.now.timeIntervalSince(startTime)
+        }
+        
+        startTime = nil
+    }
+    
     
     var isOver: Bool{
         attempts.first?.pegs == masterCode.pegs
@@ -75,6 +92,7 @@ typealias Peg = String
         if isOver{
             masterCode.kind = .master(isHidden: false)
             endTime = .now
+            pauseTimer()
         }
     }
     

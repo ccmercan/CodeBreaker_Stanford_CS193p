@@ -59,13 +59,19 @@ struct CodeBreakerView: View {
             
            
         }
+        .onAppear{
+            game.startTimer()
+        }
+        .onDisappear{
+            game.pauseTimer()
+        }
         .toolbar{
             ToolbarItem(placement: .primaryAction){
                 restartButton
             }
             
                         ToolbarItem{
-                ElapsedTime(startTime: game.startTime, endTime: game.endTime)
+                            ElapsedTime(startTime: game.startTime, endTime: game.endTime, elapsedTime: game.elapsedTime)
                 //.font(.system(size: GuessButton.maximumFontSize))
                 //.minimumScaleFactor(GuessButton.scaleFactor)
                     .monospaced()
