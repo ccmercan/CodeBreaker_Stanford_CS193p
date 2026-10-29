@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GameList: View {
-    
+     
     
     // MARK: Data Shared with Me
     @Binding var selection: CodeBreaker?
@@ -42,9 +42,13 @@ struct GameList: View {
         }
         .listStyle(.plain)
         .toolbar{
+            Button("Add Game", systemImage: "plus"){
+                let newGame = CodeBreaker(name:"Untitled", numberOfPegs: 3, pegChoices: ["red","blue","yellow"])
+                games.append(newGame)
+            }
             EditButton()
         }
-        .onAppear{addSampleGames()}
+        .onAppear{addSampleGames() }
     }
     func deleteButton(for game: CodeBreaker) -> some View {
         Button("Delete",systemImage: "minus.circle", role: .destructive){

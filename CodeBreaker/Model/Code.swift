@@ -8,6 +8,7 @@
 
 import Foundation
 
+
 struct Code {
     var kind: Kind
     var pegs : [Peg] //=
