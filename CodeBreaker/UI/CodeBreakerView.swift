@@ -9,15 +9,17 @@ import SwiftUI
 
 struct CodeBreakerView: View {
     
-    //MARK : Data Shared with Me
+    // MARK: Data Shared with Me
     let game: CodeBreaker
 
     
     // MARK: Data Owned by Me
     
-    @State private var selection: Int = 0
+    @State private var selection: Int = 0 // selection of the guess
     @State private var restarting = false
     @State private var hideRecentMarkers = false
+    
+    
     // MARK: - Body
     
     
@@ -52,7 +54,7 @@ struct CodeBreakerView: View {
                         
                 }
                 .transition(.pegChooser)
-                .frame(maxHeight: 120)
+                .frame(maxHeight: 100)
             }
             
            

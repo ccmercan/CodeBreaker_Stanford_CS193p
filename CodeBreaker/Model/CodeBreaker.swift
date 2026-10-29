@@ -16,7 +16,7 @@ typealias Peg = String
     var masterCode: Code
     var guess: Code 
     var attempts: [Code] = []
-    let pegChoices:[Peg]
+    var pegChoices:[Peg]
     var startTime: Date = Date.now
     var endTime: Date?
     

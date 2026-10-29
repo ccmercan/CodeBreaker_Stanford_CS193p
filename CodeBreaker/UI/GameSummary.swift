@@ -15,7 +15,7 @@ struct GameSummary: View {
         VStack(alignment: .leading){
             Text(game.name).font(.title)
             PegChooser(choices: game.pegChoices)
-                .frame(maxHeight: 50)
+                .frame(maxHeight: 60)
             Text("^[\(game.attempts.count) attempt](inflect:true)")
         }
     }

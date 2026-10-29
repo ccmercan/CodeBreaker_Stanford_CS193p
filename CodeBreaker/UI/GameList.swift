@@ -16,6 +16,10 @@ struct GameList: View {
     // MARK: Data Owned by Me
     @State private var games: [CodeBreaker] = []
     
+    
+    @State private var showGameEditor: Bool = false
+    @State private var gameToEdit: CodeBreaker?
+    
     var body: some View {
         List(selection:$selection){
             ForEach(games) { game in
@@ -23,7 +27,11 @@ struct GameList: View {
                     GameSummary(game:game)
                 }
                 .contextMenu{
+                    editButton(for: game) // editing a game
                     deleteButton(for: game)
+                }
+                .swipeActions(edge: .leading) {
+                    editButton(for: game).tint(.accentColor)
                 }
             }
             
@@ -42,10 +50,7 @@ struct GameList: View {
         }
         .listStyle(.plain)
         .toolbar{
-            Button("Add Game", systemImage: "plus"){
-                let newGame = CodeBreaker(name:"Untitled", numberOfPegs: 3, pegChoices: ["red","blue","yellow"])
-                games.append(newGame)
-            }
+            addButton
             EditButton()
         }
         .onAppear{addSampleGames() }
@@ -58,8 +63,44 @@ struct GameList: View {
             
         }
     }
-
-        func addSampleGames() {
+    
+    func editButton(for game: CodeBreaker) -> some View {
+        Button("Edit", systemImage: "pencil") {
+            gameToEdit = game
+        }
+    }
+    
+    
+    var addButton: some View {
+        Button("Add Game", systemImage: "plus"){
+            gameToEdit = CodeBreaker(name:"Untitled", numberOfPegs: 3, pegChoices: ["red","blue","yellow"])
+            
+        }
+        .onChange(of: gameToEdit){
+            showGameEditor = gameToEdit != nil
+        }
+        .sheet(isPresented: $showGameEditor, onDismiss: { gameToEdit = nil }){
+            gameEditor
+        }
+    }
+    
+    @ViewBuilder
+    var gameEditor: some View{
+        if let gameToEdit{
+            let copyOfGameToEdit = CodeBreaker(name: gameToEdit.name, numberOfPegs: gameToEdit.masterCode.pegs.count, pegChoices: gameToEdit.pegChoices) // careful this is reference type cant do = gameToEdit
+            GameEditor(game: copyOfGameToEdit){
+                if let index = games.firstIndex(of: gameToEdit){
+                    games[index] = copyOfGameToEdit
+                } else {
+                    games.insert(gameToEdit, at: 0)
+                }
+            }
+            
+            
+        }
+    }
+    
+    func addSampleGames() {
             if games.isEmpty{
                 games.append(CodeBreaker(name:"Mastermind",numberOfPegs: 4, pegChoices: ["red","blue","green","yellow"]))
                 games.append(CodeBreaker(name:"Earth Tones",numberOfPegs: 5, pegChoices: ["orange","brown","black","yellow","green"]))
