@@ -7,25 +7,31 @@
 
 
 import Foundation
+import SwiftData
 
-
-struct Code {
-    var kind: Kind
-    var pegs : [Peg] //=
+@Model class Code {
+    var _kind: String = Kind.unknown.description
+    var pegs: [Peg]
+        
+    var kind: Kind {
+            get { return Kind(_kind) }
+            set { _kind = newValue.description }
+        }
     
     init(kind:Kind,numberOfPegs:Int){
-        self.kind = kind
+        
         self.pegs = Array(repeating: Code.missing, count: numberOfPegs)
+        self.kind = kind
     }
     static let missing: Peg = "clear"
     
-    enum Kind:Equatable {
-        case master(isHidden: Bool)
-        case guess
-        case attempt([Match])
-        case unknown
-    }
-    
+//    enum Kind:Equatable {
+//        case master(isHidden: Bool)
+//        case guess
+//        case attempt([Match])
+//        case unknown
+//    }
+//    
     var isHidden: Bool {
         switch kind {
         case .master(let isHidden): return isHidden
@@ -42,11 +48,11 @@ struct Code {
     }
     
         
-    mutating func reset(){
+    func reset(){
         pegs = Array(repeating: Code.missing, count: pegs.count)
     }
     
-    mutating func randomize(from pegChoices:[Peg]) {
+    func randomize(from pegChoices:[Peg]) {
         for index in pegs.indices{
             pegs[index] = pegChoices.randomElement() ?? Code.missing
         }
@@ -74,4 +80,9 @@ struct Code {
         }
         return results
     }
+}
+enum Match: String {
+    case nomatch
+    case exact
+    case inexact
 }

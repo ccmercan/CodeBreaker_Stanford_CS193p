@@ -6,18 +6,19 @@
 //
 
 import Foundation
+import SwiftData
 
 typealias Peg = String
 
-@Observable class CodeBreaker {
+@Model class CodeBreaker {
     
         
     var name: String
-    var masterCode: Code
-    var guess: Code 
-    var attempts: [Code] = []
+    @Relationship(deleteRule: .cascade) var masterCode: Code
+    @Relationship(deleteRule: .cascade) var guess: Code
+    @Relationship(deleteRule: .cascade) var attempts: [Code] = []
     var pegChoices:[Peg]
-    var startTime: Date?
+    @Transient var startTime: Date?
     var endTime: Date?
     var elapsedTime: TimeInterval = 0
     
@@ -73,20 +74,22 @@ typealias Peg = String
     }
     
      func attemptGuess() {
-        var attempt = guess
+        
+        let attemptt = guess
 
         let alreadyTried = attempts.contains { savedAttempt in
-            savedAttempt.pegs == attempt.pegs
+            savedAttempt.pegs == attemptt.pegs
         }
-        let hasNoPegsChosen = attempt.pegs.allSatisfy { peg in
+        let hasNoPegsChosen = attemptt.pegs.allSatisfy { peg in
             peg == Code.missing
         }
 
         if alreadyTried || hasNoPegsChosen {
             return
         }
-
-        attempt.kind = .attempt(guess.match(against: masterCode))
+        let attempt = Code(kind:.attempt(guess.match(against: masterCode)), numberOfPegs: guess.pegs.count)
+         attempt.pegs = guess.pegs
+        
         attempts.insert(attempt, at: 0)
         guess.reset()
         if isOver{
@@ -111,15 +114,4 @@ typealias Peg = String
         }
     }
     
-}
-
-
-extension CodeBreaker: Identifiable, Hashable, Equatable {
-    static func == (lhs: CodeBreaker, rhs: CodeBreaker) -> Bool {
-        return lhs.id == rhs.id
-    }
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-
 }
