@@ -6,15 +6,16 @@
 //
 
 import SwiftUI
-
+import SwiftData
 struct GameList: View {
-     
+     // MARK: Data In
+    @Environment(\.modelContext) var modelContext
     
     // MARK: Data Shared with Me
     @Binding var selection: CodeBreaker?
-    
+    @Query(sort: \CodeBreaker.name, order: .forward) private var games: [CodeBreaker]
     // MARK: Data Owned by Me
-    @State private var games: [CodeBreaker] = []
+    
     
     
     @State private var showGameEditor: Bool = false
@@ -37,11 +38,12 @@ struct GameList: View {
             
             
             .onDelete{ offsets in
-                games.remove(atOffsets:offsets)
+                for offset in offsets{
+                    modelContext.delete(games[offset])
+                }
+                //games.remove(atOffsets:offsets)
             }
-            .onMove { offsets, destination in
-                games.move(fromOffsets: offsets, toOffset: destination)
-            }
+            
         }
         .onChange(of:games){
             if let selection, !games.contains(selection){
@@ -58,7 +60,8 @@ struct GameList: View {
     func deleteButton(for game: CodeBreaker) -> some View {
         Button("Delete",systemImage: "minus.circle", role: .destructive){
             withAnimation{
-                games.removeAll{$0 == game}
+                modelContext.delete(game)
+                
             }
             
         }
@@ -89,11 +92,12 @@ struct GameList: View {
         if let gameToEdit{
             let copyOfGameToEdit = CodeBreaker(name: gameToEdit.name, numberOfPegs: gameToEdit.masterCode.pegs.count, pegChoices: gameToEdit.pegChoices) // careful this is reference type cant do = gameToEdit
             GameEditor(game: copyOfGameToEdit){
-                if let index = games.firstIndex(of: gameToEdit){
-                    games[index] = copyOfGameToEdit
-                } else {
-                    games.insert(gameToEdit, at: 0)
+                if games.contains(gameToEdit){
+                    modelContext.delete(gameToEdit)
+                    modelContext.insert(copyOfGameToEdit)
+                    
                 }
+                modelContext.insert(copyOfGameToEdit)
             }
             
             
@@ -101,12 +105,22 @@ struct GameList: View {
     }
     
     func addSampleGames() {
-            if games.isEmpty{
-                games.append(CodeBreaker(name:"Mastermind",numberOfPegs: 4, pegChoices: ["red","blue","green","yellow"]))
-                games.append(CodeBreaker(name:"Earth Tones",numberOfPegs: 5, pegChoices: ["orange","brown","black","yellow","green"]))
-                games.append(CodeBreaker(name:"Undersea",numberOfPegs: 3, pegChoices: ["blue","indigo","cyan"]))
-                selection = games.first
+            let fetchDescriptor = FetchDescriptor<CodeBreaker> ()
+            
+            do {
+                let results = try modelContext.fetch(fetchDescriptor)
+                if results.count == 0 {
+                    modelContext.insert(CodeBreaker(name:"Mastermind",numberOfPegs: 4, pegChoices: ["red","blue","green","yellow"]))
+                    modelContext.insert(CodeBreaker(name:"Earth Tones",numberOfPegs: 5, pegChoices: ["orange","brown","black","yellow","green"]))
+                    modelContext.insert(CodeBreaker(name:"Undersea",numberOfPegs: 3, pegChoices: ["blue","indigo","cyan"]))
+                    
+                }
+            } catch {
+                print("Had a problem counting games: \(error.localizedDescription)")
             }
+        
+        
+            
         }
 
     }
@@ -117,4 +131,6 @@ struct GameList: View {
     NavigationStack{
         GameList(selection: $selection)
     }
+    .modelContainer(for: CodeBreaker.self, inMemory: true)
+    
 }
