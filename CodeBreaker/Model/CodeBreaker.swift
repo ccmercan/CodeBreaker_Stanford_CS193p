@@ -30,7 +30,7 @@ typealias Peg = String
         self.guess = Code(kind:.guess, numberOfPegs:numberOfPegs)
         masterCode.randomize(from: pegChoices)
         
-        print(masterCode)
+        print(masterCode.pegs)
     }
     
      func randomGame(){
@@ -44,19 +44,20 @@ typealias Peg = String
 //        }
         
         masterCode.kind = .master(isHidden: true)
-        masterCode.randomize(from: masterCode.pegs)
+        masterCode.randomize(from: pegChoices)
         guess.reset()
 
         attempts.removeAll()
         startTime = .now
         endTime = nil
         elapsedTime = 0
-
+        print(masterCode.pegs)
     }
     
     func startTimer() {
         if startTime == nil, !isOver {
             startTime = .now
+            elapsedTime += 0.00001
         }
     }
     
