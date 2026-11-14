@@ -161,7 +161,7 @@ extension Color {
     }
 }
 
-#Preview {
+#Preview(traits: .swiftData) {
     @Previewable @State var game = CodeBreaker(name:"Preview", numberOfPegs: 3, pegChoices: ["red","blue","green"])
     NavigationStack{
         CodeBreakerView(game: game)

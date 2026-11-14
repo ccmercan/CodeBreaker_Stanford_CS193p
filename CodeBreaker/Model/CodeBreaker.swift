@@ -16,12 +16,22 @@ typealias Peg = String
     var name: String
     @Relationship(deleteRule: .cascade) var masterCode: Code
     @Relationship(deleteRule: .cascade) var guess: Code
-    @Relationship(deleteRule: .cascade) var attempts: [Code] = []
+    @Relationship(deleteRule: .cascade) var _attempts: [Code] = []
     var pegChoices:[Peg]
     @Transient var startTime: Date?
     var endTime: Date?
     var elapsedTime: TimeInterval = 0
+    var lastAttemptDate:Date = Date.now
     
+    
+    
+    /// Provides attempts sorted from newest to oldest by timestamp.
+    /// The underlying SwiftData relationship does not guarantee ordering.
+    /// Changes are written back to the stored `_attempts` relationship.
+    var attempts: [Code] {
+        get { _attempts.sorted { $0.timestamp > $1.timestamp} }
+        set { _attempts = newValue}
+    }
     
     init(name:String = "Code Breaker",numberOfPegs: Int, pegChoices: [Peg] = ["brown","yellow","orange","black", "pink", "purple"]){
         self.name = name
@@ -92,6 +102,7 @@ typealias Peg = String
          attempt.pegs = guess.pegs
         
         attempts.insert(attempt, at: 0)
+         lastAttemptDate = .now
         guess.reset()
         if isOver{
             masterCode.kind = .master(isHidden: false)

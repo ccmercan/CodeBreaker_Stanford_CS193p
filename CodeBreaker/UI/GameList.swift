@@ -11,15 +11,45 @@ struct GameList: View {
      // MARK: Data In
     @Environment(\.modelContext) var modelContext
     
-    // MARK: Data Shared with Me
+    // MARK: Data Shared with Meh
     @Binding var selection: CodeBreaker?
-    @Query(sort: \CodeBreaker.name, order: .forward) private var games: [CodeBreaker]
+    @Query private var games: [CodeBreaker]
+
+    
     // MARK: Data Owned by Me
-    
-    
-    
+
     @State private var showGameEditor: Bool = false
     @State private var gameToEdit: CodeBreaker?
+    
+    init(sortBy: SortOption = .name,nameContains search: String = "", selection: Binding<CodeBreaker?>) {
+       
+        let lowercaseSearch = search.lowercased()
+        let capitalizedSearch = search.capitalized
+        let predicate = #Predicate<CodeBreaker> { game in
+            search.isEmpty || game.name.contains(lowercaseSearch) || game.name.contains(capitalizedSearch)
+        }
+        _selection = selection
+        switch sortBy{
+        case .name: _games = Query(filter: predicate,sort: \CodeBreaker.name)
+        case .recent: _games = Query(filter: predicate, sort: \CodeBreaker.lastAttemptDate, order: .reverse)
+            
+        }
+        
+    }
+    
+    enum SortOption:CaseIterable {
+        case name
+        case recent
+        
+        var title:String {
+            switch self{
+            case .name : "Sort By Name"
+            case .recent: "Recent"
+                
+            }
+        }
+    }
+    
     
     var body: some View {
         List(selection:$selection){
@@ -94,8 +124,6 @@ struct GameList: View {
             GameEditor(game: copyOfGameToEdit){
                 if games.contains(gameToEdit){
                     modelContext.delete(gameToEdit)
-                    modelContext.insert(copyOfGameToEdit)
-                    
                 }
                 modelContext.insert(copyOfGameToEdit)
             }
@@ -108,8 +136,8 @@ struct GameList: View {
             let fetchDescriptor = FetchDescriptor<CodeBreaker> ()
             
             do {
-                let results = try modelContext.fetch(fetchDescriptor)
-                if results.count == 0 {
+                let count = try modelContext.fetchCount(fetchDescriptor)
+                if count == 0 {
                     modelContext.insert(CodeBreaker(name:"Mastermind",numberOfPegs: 4, pegChoices: ["red","blue","green","yellow"]))
                     modelContext.insert(CodeBreaker(name:"Earth Tones",numberOfPegs: 5, pegChoices: ["orange","brown","black","yellow","green"]))
                     modelContext.insert(CodeBreaker(name:"Undersea",numberOfPegs: 3, pegChoices: ["blue","indigo","cyan"]))
@@ -126,11 +154,11 @@ struct GameList: View {
     }
 
 
-#Preview {
+#Preview(traits: .swiftData) {
     @Previewable @State var selection: CodeBreaker?
     NavigationStack{
         GameList(selection: $selection)
     }
-    .modelContainer(for: CodeBreaker.self, inMemory: true)
+    
     
 }
